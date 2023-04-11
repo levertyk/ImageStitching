@@ -15,9 +15,9 @@ keypoints2, descriptors2 = orb.detectAndCompute(image2, None)
 # Match keypoints using FLANN matcher
 FLANN_INDEX_LSH = 6
 index_params = dict(algorithm=FLANN_INDEX_LSH,
-                   table_number=6,  # 6
-                   key_size=12,  # 12
-                   multi_probe_level=1)  # 1
+                    table_number=6,
+                    key_size=12,
+                    multi_probe_level=1)
 search_params = dict(checks=50)
 flann = cv2.FlannBasedMatcher(index_params, search_params)
 matches = flann.knnMatch(descriptors1, descriptors2, k=2)
@@ -36,7 +36,8 @@ dst_pts = np.float32([keypoints2[m.trainIdx].pt for m in good_matches])
 M, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC)
 
 # Warp image2 to align with image1
-aligned_image2 = cv2.warpPerspective(image2, M, (image1.shape[1], image1.shape[0]))
+aligned_image2 = cv2.warpPerspective(
+    image2, M, (image1.shape[1], image1.shape[0]))
 
 # Blend the overlapping region
 overlap_width = int(image1.shape[1] / 2)
@@ -49,7 +50,8 @@ blended_image = cv2.addWeighted(
 )
 
 # Combine the images
-stitched_image = cv2.hconcat([blended_image, aligned_image2[:, overlap_width:]])
+stitched_image = cv2.hconcat(
+    [blended_image, aligned_image2[:, overlap_width:]])
 
 # Display the stitched image
 cv2.imshow('Stitched Image', stitched_image)
