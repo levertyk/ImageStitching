@@ -1,3 +1,7 @@
+# References:
+#     https://docs.opencv.org/3.1.0/da/df5/tutorial_py_sift_intro.html
+#     https://docs.opencv.org/3.4/d1/de0/tutorial_py_feature_homography.html
+
 import cv2
 import numpy as np
 
