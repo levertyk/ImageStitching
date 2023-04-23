@@ -75,6 +75,7 @@ cv2.imshow("og_dst", dst)
 
 # Copy the pixels of the original image (img) onto the corresponding region of the warped image (dst)
 # This effectively stitches the two images together
+# TODO: Figure out why this is not working
 dst[0:img.shape[0], 0:img.shape[1]] = img
 
 # Display the final stitched image (dst) with the original image and the warped image blended together
