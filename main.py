@@ -6,11 +6,9 @@ import cv2
 import numpy as np
 
 img_ = cv2.imread('left.jpg')  # Read the left image
-img_ = cv2.resize(img_, (0, 0), fx=1, fy=1)  # Resize the left image (no scaling)
 img1 = cv2.cvtColor(img_, cv2.COLOR_BGR2GRAY)  # Convert the left image to grayscale
 
 img = cv2.imread('right.jpg')  # Read the right image
-img = cv2.resize(img, (0, 0), fx=1, fy=1)  # Resize the right image (no scaling)
 img2 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # Convert the right image to grayscale
 
 sift = cv2.SIFT_create()  # Create an instance of the SIFT feature detector
@@ -58,8 +56,9 @@ if len(good) > MIN_MATCH_COUNT:
     dst = cv2.perspectiveTransform(pts, M)
     # Draw a polygon around the transformed corner points on the second image
     img2 = cv2.polylines(img2, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
-    # Display the stitched image with the overlapping region highlighted
-    cv2.imshow("original_image_overlapping.jpg", img2)
+    # Display the overlapping region of the two images
+    cv2.imshow("image with overlapping region outlined", img2)
+    cv2.imshow("mask", mask)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 else:
@@ -67,12 +66,13 @@ else:
           (len(good), MIN_MATCH_COUNT))
 
 # Funky stuff going on right here, no bueno
-print(M)  # Print the homography matrix M
+# print(M)  # Print the homography matrix M
 
 # Warp the perspective of the second image (img_) using the homography matrix M
 # and create a new image with a size equal to the sum of widths of img and img_
 # and the height of img
-dst = cv2.warpPerspective(img_, M, (img.shape[1] + img_.shape[1], img.shape[0]))
+# TODO: this also might not work as intended, but it is hard to tell.
+dst = cv2.warpPerspective(img, M, (img.shape[1] + img_.shape[1], img.shape[0]))
 
 # Display the warped image (dst) without blending with the original image (img)
 cv2.imshow("og_dst", dst)
