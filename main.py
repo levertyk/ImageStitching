@@ -5,18 +5,18 @@
 import cv2
 import numpy as np
 
-img_ = cv2.imread('left.jpg')  # Read the left image
-img1 = cv2.cvtColor(img_, cv2.COLOR_BGR2GRAY)  # Convert the left image to grayscale
+img_L = cv2.imread('left.jpg')  # Read the left image
+img1 = cv2.cvtColor(img_L, cv2.COLOR_BGR2GRAY)  # Convert the left image to grayscale
 
-img = cv2.imread('right.jpg')  # Read the right image
-img2 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # Convert the right image to grayscale
+img_R = cv2.imread('right.jpg')  # Read the right image
+img2 = cv2.cvtColor(img_R, cv2.COLOR_BGR2GRAY)  # Convert the right image to grayscale
 
 sift = cv2.SIFT_create()  # Create an instance of the SIFT feature detector
 # Find the key points and descriptors in the left and right images using SIFT
 kp1, des1 = sift.detectAndCompute(img1, None)
 kp2, des2 = sift.detectAndCompute(img2, None)
 
-cv2.imshow('original_image_left_keypoints', cv2.drawKeypoints(img_, kp1, None))
+cv2.imshow('original_image_left_keypoints', cv2.drawKeypoints(img_L, kp1, None))
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
@@ -32,7 +32,7 @@ draw_params = dict(matchColor=(0, 255, 0),  # Set parameters for drawing matches
                    singlePointColor=None,
                    flags=2)
 
-img3 = cv2.drawMatches(img_, kp1, img, kp2, good, None, **draw_params)  # Draw the "good" matches
+img3 = cv2.drawMatches(img_L, kp1, img_R, kp2, good, None, **draw_params)  # Draw the "good" matches
 cv2.imshow("original_image_drawMatches.jpg", img3)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
@@ -68,19 +68,20 @@ else:
 # Funky stuff going on right here, no bueno
 # print(M)  # Print the homography matrix M
 
-# Warp the perspective of the second image (img_) using the homography matrix M
-# and create a new image with a size equal to the sum of widths of img and img_
-# and the height of img
+# Warp the perspective of the second image (img_L) using the homography matrix M
+# and create a new image with a size equal to the sum of widths of img_R and img_L
+# and the height of img_R
 # TODO: this also might not work as intended, but it is hard to tell.
-dst = cv2.warpPerspective(img, M, (img.shape[1] + img_.shape[1], img.shape[0]))
+print(dst)
+dst = cv2.warpPerspective(img_L, M, (img_R.shape[1] + img_R.shape[1], img_R.shape[0]))
 
-# Display the warped image (dst) without blending with the original image (img)
+# Display the warped image (dst) without blending with the original image (img_R)
 cv2.imshow("og_dst", dst)
 
-# Copy the pixels of the original image (img) onto the corresponding region of the warped image (dst)
+# Copy the pixels of the original image (img_R) onto the corresponding region of the warped image (dst)
 # This effectively stitches the two images together
 # TODO: Figure out why this is not working
-dst[0:img.shape[0], 0:img.shape[1]] = img
+dst[0:img_R.shape[0], 0:img_R.shape[1]] = img_R
 
 # Display the final stitched image (dst) with the original image and the warped image blended together
 cv2.imshow("original_image_stitched.jpg", dst)
