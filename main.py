@@ -90,21 +90,21 @@ else:
 # Warp the perspective of the second image (img_L) using the homography matrix M
 # and create a new image with a size equal to the sum of widths of img_R and img_L
 # and the height of img_R
-# TODO: this also might not work as intended, but it is hard to tell.
+# TODO: this STILL might not work as intended, but it is hard to tell.
 # The canvas for the end image is dst. The warped intersection is stored in warped_inter
 dst = cv2.warpPerspective(img_L, M, (img_R.shape[1] + img_R.shape[1], img_R.shape[0]))
 warped_inter = trim(dst).copy()
 
 # Display the warped image (warped_inter) without blending with the original image (img_R)
+cv2.imshow("og_dst", warped_inter)
 
 # Copy the pixels of the original image (img_R) onto the corresponding region of the warped image (dst)
 # This effectively stitches the two images together
-# TODO: Figure out why this is not working
+# TODO: Fix the slight line at the right edge of the stitch zone
 dst[0:img_L.shape[0], 0:img_L.shape[1]] = img_L
 gap_width = img_L.shape[1] - warped_inter.shape[1]
 dst[0:img_L.shape[0],  gap_width:(gap_width + img_R.shape[1])] = img_R
 dst[0:img_L.shape[0], gap_width:img_L.shape[1]] = warped_inter
-cv2.imshow("og_dst", warped_inter)
 
 # Display the final stitched image (dst) with the original image and the warped image blended together
 cv2.imshow("original_image_stitched.jpg", dst)
