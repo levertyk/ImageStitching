@@ -5,6 +5,25 @@
 import cv2
 import numpy as np
 
+#trim: reduce the black frame around an image
+#input: image
+#output: image without and black around its borders
+def trim(frame):
+    # crop top
+    if not np.sum(frame[0]):
+        return trim(frame[1:])
+    # crop top
+    if not np.sum(frame[-1]):
+        return trim(frame[:-2])
+    # crop top
+    if not np.sum(frame[:, 0]):
+        return trim(frame[:, 1:])
+    # crop top
+    if not np.sum(frame[:, -1]):
+        return trim(frame[:, :-2])
+    return frame
+
+
 img_L = cv2.imread('left.jpg')  # Read the left image
 img1 = cv2.cvtColor(img_L, cv2.COLOR_BGR2GRAY)  # Convert the left image to grayscale
 
@@ -72,39 +91,27 @@ else:
 # and create a new image with a size equal to the sum of widths of img_R and img_L
 # and the height of img_R
 # TODO: this also might not work as intended, but it is hard to tell.
+# The canvas for the end image is dst. The warped intersection is stored in warped_inter
 print(dst)
 dst = cv2.warpPerspective(img_L, M, (img_R.shape[1] + img_R.shape[1], img_R.shape[0]))
+warped_inter = trim(dst)
 
-# Display the warped image (dst) without blending with the original image (img_R)
-cv2.imshow("og_dst", dst)
+# Display the warped image (warped_inter) without blending with the original image (img_R)
+cv2.imshow("og_dst", warped_inter)
 
 # Copy the pixels of the original image (img_R) onto the corresponding region of the warped image (dst)
 # This effectively stitches the two images together
 # TODO: Figure out why this is not working
-dst[0:img_R.shape[0], 0:img_R.shape[1]] = img_R
+dst[0:img_L.shape[0], 0:img_L.shape[1]] = img_L
+gap_width = img_L.shape[1] - warped_inter.shape[1]
+dst[0:img_L.shape[0],  gap_width:(gap_width + img_R.shape[1])] = img_R
+dst[0:img_L.shape[0], gap_width:img_L.shape[1]] = warped_inter
 
 # Display the final stitched image (dst) with the original image and the warped image blended together
 cv2.imshow("original_image_stitched.jpg", dst)
 
 cv2.waitKey(0)  # Wait for a key press
 cv2.destroyAllWindows()  # Close all display windows
-
-
-
-def trim(frame):
-    # crop top
-    if not np.sum(frame[0]):
-        return trim(frame[1:])
-    # crop top
-    if not np.sum(frame[-1]):
-        return trim(frame[:-2])
-    # crop top
-    if not np.sum(frame[:, 0]):
-        return trim(frame[:, 1:])
-    # crop top
-    if not np.sum(frame[:, -1]):
-        return trim(frame[:, :-2])
-    return frame
 
 
 cv2.imshow("original_image_stitched_crop.jpg", trim(dst))
