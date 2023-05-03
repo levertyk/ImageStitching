@@ -28,7 +28,7 @@ def stitch(img_L, img_R):
 
     img2 = cv2.cvtColor(img_R, cv2.COLOR_BGR2GRAY)  # Convert the right image to grayscale
 
-    sift = cv2.SIFT_create()  # Create an instance of the SIFT feature detector
+    sift = cv2.ORB_create(nfeatures=2000)  # Create an instance of the SIFT feature detector
     # Find the key points and descriptors in the left and right images using SIFT
     kp1, des1 = sift.detectAndCompute(img1, None)
     kp2, des2 = sift.detectAndCompute(img2, None)
@@ -42,7 +42,7 @@ def stitch(img_L, img_R):
 
     good = []  # Initialize an empty list to store "good" matches
     for m, n in matches:
-        if m.distance < 0.03 * n.distance:  # Apply a distance ratio test to filter out ambiguous matches
+        if m.distance < 0.6 * n.distance:  # Apply a distance ratio test to filter out ambiguous matches
             good.append(m)  # Add "good" matches to the list
 
     draw_params = dict(matchColor=(0, 255, 0),  # Set parameters for drawing matches
