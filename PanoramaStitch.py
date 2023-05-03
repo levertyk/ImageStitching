@@ -86,7 +86,7 @@ def stitch(img_L, img_R):
     # and the height of img_R
     # TODO: this STILL might not work as intended, but it is hard to tell.
     # The canvas for the end image is dst. The warped intersection is stored in warped_inter
-    dst = cv2.warpPerspective(img_L, M, (img_R.shape[1] + img_R.shape[1], img_R.shape[0]))
+    dst = cv2.warpPerspective(img_L, M, (img_L.shape[1] + img_L.shape[1], img_R.shape[0]))
     warped_inter = trim(dst).copy()
 
     # Copy the pixels of the original image (img_R) onto the corresponding region of the warped image (dst)
