@@ -8,15 +8,16 @@ NUM_IMG = 14
 
 for i in range(1, NUM_IMG + 1):
     #if i < 10:
-    in_img.append(cv2.imread("SampleSets\library\\" + repr(i) + ".jpg"))
+    img_scalar = cv2.imread("SampleSets\library\\" + repr(i) + ".jpg")
+    scale = 2 #ideally, this would be NUM_IMG, but I can't get it to work on images that small.
+    in_img.append(img_scalar[::scale,::scale])
     #else:
     #    in_img.append(cv2.imread("SampleSets\grail\grail" + repr(i) + ".jpg"))
 
-panoramic = beet.stitch(in_img[0], in_img[1])
+panoramic = in_img[0]
 
-for i in range(2, NUM_IMG):
+for i in range(1, NUM_IMG):
     temp = beet.stitch(panoramic, in_img[i])
-    panoramic.shape = temp.shape
     panoramic = temp
 
 cv2.imsave("Panorama.png", panoramic)

@@ -23,12 +23,29 @@ def trim(frame):
         return trim(frame[:, :-2])
     return frame
 
+def warpTwoImages(img1, img2, H):
+    '''warp img2 to img1 with homograph H'''
+    h1,w1 = img1.shape[:2]
+    h2,w2 = img2.shape[:2]
+    pts1 = np.float32([[0,0],[0,h1],[w1,h1],[w1,0]]).reshape(-1,1,2)
+    pts2 = np.float32([[0,0],[0,h2],[w2,h2],[w2,0]]).reshape(-1,1,2)
+    pts2_ = cv2.perspectiveTransform(pts2, H)
+    pts = np.concatenate((pts1, pts2_), axis=0)
+    [xmin, ymin] = np.int32(pts.min(axis=0).ravel() - 0.5)
+    [xmax, ymax] = np.int32(pts.max(axis=0).ravel() + 0.5)
+    t = [-xmin,-ymin]
+    Ht = np.array([[1,0,t[0]],[0,1,t[1]],[0,0,1]]) # translate
+
+    result = cv2.warpPerspective(img2, Ht.dot(H), (xmax-xmin, ymax-ymin))
+    result[t[1]:h1+t[1],t[0]:w1+t[0]] = img1
+    return result
+
 def stitch(img_L, img_R):
     img1 = cv2.cvtColor(img_L, cv2.COLOR_BGR2GRAY)  # Convert the left image to grayscale
 
     img2 = cv2.cvtColor(img_R, cv2.COLOR_BGR2GRAY)  # Convert the right image to grayscale
 
-    sift = cv2.ORB_create(nfeatures=2000)  # Create an instance of the SIFT feature detector
+    sift = cv2.SIFT_create(nfeatures=2000)  # Create an instance of the SIFT feature detector
     # Find the key points and descriptors in the left and right images using SIFT
     kp1, des1 = sift.detectAndCompute(img1, None)
     kp2, des2 = sift.detectAndCompute(img2, None)
@@ -71,12 +88,14 @@ def stitch(img_L, img_R):
                         ).reshape(-1, 1, 2)
         # Apply perspective transformation to the corner points using the homography matrix
         dst = cv2.perspectiveTransform(pts, M)
+        
         # Draw a polygon around the transformed corner points on the second image
         img2 = cv2.polylines(img2, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
         # Display the overlapping region of the two images
     else:
         print("Not enough matches are found - %d/%d" %
             (len(good), MIN_MATCH_COUNT))
+        return
 
     # Funky stuff going on right here, no bueno
     # print(M)  # Print the homography matrix M
@@ -86,8 +105,19 @@ def stitch(img_L, img_R):
     # and the height of img_R
     # TODO: this STILL might not work as intended, but it is hard to tell.
     # The canvas for the end image is dst. The warped intersection is stored in warped_inter
-    dst = cv2.warpPerspective(img_L, M, (img_L.shape[1] + img_L.shape[1], img_R.shape[0]))
-    warped_inter = trim(dst).copy()
+    dst = warpTwoImages(img_R, img_L, M)
+    #dst = cv2.warpPerspective(img_L, M, (img_L.shape[1] + img_L.shape[1], img_R.shape[0]))
+    
+    cv2.imshow("Stitched", dst)
+
+    cv2.waitKey(0)  # Wait for a key press
+    cv2.destroyAllWindows()  # Close all display windows
+    
+    """ warped_inter = trim(dst).copy()
+    cv2.imshow("original_image_stitched.jpg", dst)
+
+    cv2.waitKey(0)  # Wait for a key press
+    cv2.destroyAllWindows()  # Close all display windows
 
     # Copy the pixels of the original image (img_R) onto the corresponding region of the warped image (dst)
     # This effectively stitches the two images together
@@ -101,5 +131,5 @@ def stitch(img_L, img_R):
     cv2.imshow("original_image_stitched.jpg", dst)
 
     cv2.waitKey(0)  # Wait for a key press
-    cv2.destroyAllWindows()  # Close all display windows
+    cv2.destroyAllWindows()  # Close all display windows """
     return dst
