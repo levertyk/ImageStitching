@@ -4,17 +4,14 @@ import PanoramaStitch as beet
 
 in_img = []
 
-NUM_IMG = 14
+NUM_IMG = 6
 
 for i in range(1, NUM_IMG + 1):
-    if i < 10:
-        img_scalar = cv2.imread("SampleSets\grail\grail0" + repr(i) + ".jpg")
-    else:
-        img_scalar = cv2.imread("SampleSets\grail\grail" + repr(i) + ".jpg")
-    scale = 3 #ideally, this would be NUM_IMG, but I can't get it to work on images that small.
+    img_scalar = cv2.imread("SampleSets\Xue-Mountain-Enterance\DSC_017" + repr(i) + ".jpg")
+    
+    scale = 1 #ideally, this would be NUM_IMG, but I can't get it to work on images that small.
     in_img.append(img_scalar[::scale,::scale])
     
-
 panoramic = in_img[0]
 
 for i in range(1, NUM_IMG):
