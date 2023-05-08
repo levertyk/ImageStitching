@@ -59,7 +59,7 @@ def stitch(img_L, img_R):
 
     good = []  # Initialize an empty list to store "good" matches
     for m, n in matches:
-        if m.distance < 0.6 * n.distance:  # Apply a distance ratio test to filter out ambiguous matches
+        if m.distance < 0.5 * n.distance:  # Apply a distance ratio test to filter out ambiguous matches
             good.append(m)  # Add "good" matches to the list
 
     draw_params = dict(matchColor=(0, 255, 0),  # Set parameters for drawing matches
